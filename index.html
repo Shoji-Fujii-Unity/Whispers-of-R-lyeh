@@ -1,0 +1,1425 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+<title>星眠る街の脱出 | Whispers of R'lyeh</title>
+<style>
+:root {
+  color-scheme: dark;
+}
+
+html, body {
+  height: 100%;
+  margin: 0;
+  background: #02050a;
+  color: #d9e7f2;
+  font-family: "Hiragino Kaku Gothic ProN", "Yu Gothic", "Meiryo", "Segoe UI", Arial, sans-serif;
+  overflow: hidden;
+  -webkit-text-size-adjust: 100%;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  background: rgba(9, 21, 29, .78);
+  border: 1px solid rgba(100, 160, 190, .32);
+  border-radius: .35em;
+  padding: .35em .6em;
+  cursor: pointer;
+  box-shadow: 0 .1em .45em rgba(0, 0, 0, .22);
+}
+
+button:hover,
+button:focus {
+  background: rgba(15, 35, 48, .92);
+  border-color: rgba(120, 220, 255, .65);
+  outline: none;
+}
+
+button:disabled {
+  opacity: .35;
+  cursor: not-allowed;
+}
+
+#rotate {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background: #02050a;
+  text-align: center;
+  padding: 1.2rem;
+}
+
+.rotateBox {
+  max-width: 30rem;
+  border: 1px solid rgba(100, 160, 190, .3);
+  background: rgba(8, 17, 24, .9);
+  border-radius: 1rem;
+  padding: 2rem;
+}
+
+.rotateIcon {
+  font-size: 4rem;
+  margin-bottom: .7rem;
+  color: #7ad7e8;
+}
+
+.rotateBox h2 {
+  margin: 0 0 .7rem;
+  color: #b8e7df;
+}
+
+.rotateBox p {
+  margin: 0;
+  opacity: .85;
+}
+
+@media (orientation: portrait) {
+  #rotate {
+    display: flex;
+  }
+  #gameWrap {
+    display: none;
+  }
+}
+
+#gameWrap {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #02050a;
+}
+
+#game {
+  position: relative;
+  overflow: hidden;
+  width: min(100vw, calc(100vh * 16 / 9));
+  height: min(100vh, calc(100vw * 9 / 16));
+  background: #04070d;
+  font-size: clamp(9px, 1.35vw, 18px);
+  user-select: none;
+}
+
+.view {
+  display: none;
+  position: absolute;
+  inset: 0;
+}
+
+.view.active {
+  display: block;
+}
+
+.overlay {
+  display: none;
+  position: absolute;
+  inset: 0;
+  z-index: 100;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+#endingScreen {
+  z-index: 110;
+}
+
+.overlay.active {
+  display: flex;
+}
+
+#titleScreen,
+#endingScreen {
+  background:
+    radial-gradient(circle at 50% 65%, rgba(16, 43, 64, .52), rgba(2, 5, 10, .97) 65%),
+    #02050a;
+}
+
+.titleBox {
+  width: min(92%, 52em);
+  max-height: 100%;
+  overflow: auto;
+  text-align: center;
+  padding: 1rem;
+}
+
+.mythos {
+  margin: 0 0 .5rem;
+  color: #75a0b5;
+  letter-spacing: .22em;
+  font-size: .8em;
+}
+
+.titleBox h1 {
+  margin: 0 0 .6rem;
+  font-size: 2.35em;
+  line-height: 1.15;
+  color: #d8c89a;
+  text-shadow: 0 0 1.5em rgba(90, 180, 210, .22);
+  letter-spacing: .04em;
+}
+
+.sub,
+.note {
+  margin: 0 0 1rem;
+  opacity: .82;
+  line-height: 1.5;
+}
+
+.note {
+  font-size: .8em;
+  opacity: .55;
+}
+
+.body {
+  white-space: pre-line;
+  line-height: 1.6;
+  text-align: left;
+}
+
+.titleButtons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .5em;
+  justify-content: center;
+  margin-top: 1.4em;
+}
+
+.titleButtons button {
+  min-width: 8em;
+  font-size: 1.1em;
+  padding: .7em 1em;
+}
+
+.titleSettings {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .4em;
+  justify-content: center;
+  margin-top: 1em;
+}
+
+#topbar {
+  position: absolute;
+  top: .35em;
+  right: .35em;
+  z-index: 30;
+  display: flex;
+  flex-wrap: wrap;
+  gap: .25em;
+  justify-content: flex-end;
+}
+
+#topbar button {
+  font-size: .72em;
+  padding: .28em .45em;
+}
+
+#sceneWrap {
+  position: absolute;
+  inset: 0;
+}
+
+#scene {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.hidden {
+  display: none !important;
+}
+
+.hotspot {
+  cursor: pointer;
+}
+
+.hotspot:hover,
+.hotspot:focus {
+  filter: drop-shadow(0 0 4px rgba(100, 230, 255, .55));
+}
+
+#bottomUI {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  min-height: 16%;
+  max-height: 30%;
+  display: flex;
+  gap: .4em;
+  padding: .45em;
+  pointer-events: none;
+  z-index: 40;
+}
+
+#messageBox {
+  flex: 1;
+  min-height: 3em;
+  padding: .65em .7em;
+  border-radius: .45em;
+  background: linear-gradient(to top, rgba(2, 8, 12, .96), rgba(2, 8, 12, 0) 95%);
+  font-size: 1.05em;
+  line-height: 1.45;
+  white-space: pre-line;
+  pointer-events: none;
+}
+
+#inventory {
+  width: 30%;
+  min-width: 7em;
+  display: flex;
+  flex-wrap: wrap;
+  gap: .3em;
+  align-items: flex-end;
+  justify-content: flex-end;
+  pointer-events: auto;
+}
+
+.invEmpty {
+  color: rgba(180, 220, 235, .35);
+  font-size: .9em;
+  padding: .35em;
+  pointer-events: none;
+}
+
+.inv-item {
+  font-size: .85em;
+  padding: .35em .5em;
+}
+
+.modal {
+  position: absolute;
+  inset: 0;
+  z-index: 500;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background: rgba(1, 5, 8, .82);
+  padding: 1em;
+}
+
+.modal.show {
+  display: flex;
+}
+
+.panel {
+  width: min(92%, 48em);
+  max-height: 90%;
+  overflow: auto;
+  background: #08131a;
+  border: 1px solid rgba(120, 200, 230, .26);
+  border-radius: .7em;
+  padding: 1.1em;
+  box-shadow: 0 0 3em rgba(0, 0, 0, .65);
+}
+
+.panel h3 {
+  margin: 0 0 .9em;
+  color: #9ad9d2;
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: .5em;
+  margin-top: 1em;
+}
+
+.dials {
+  display: flex;
+  justify-content: center;
+  gap: 1em;
+  margin: 1em 0;
+}
+
+.dial {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: .3em;
+}
+
+.digit {
+  width: 2.1em;
+  text-align: center;
+  font-size: 2.4em;
+  border: 1px solid rgba(150, 220, 240, .38);
+  background: #020a0e;
+  color: #d2ecf7;
+  border-radius: .25em;
+  padding: .15em;
+}
+
+.dial button {
+  font-size: 1.15em;
+  min-width: 2.1em;
+}
+
+.lock-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: .5em;
+}
+
+#cabinet-lock.used {
+  fill: #7a7054;
+}
+
+#desk-dial.unlocked {
+  fill: #6f7d72;
+}
+
+#door-socket.filled {
+  fill: #d9c58f;
+  stroke: #ffe4a0;
+  filter: drop-shadow(0 0 8px rgba(255, 216, 118, .65));
+}
+
+#hot-rug.moved ellipse {
+  opacity: .82;
+}
+</style>
+</head>
+<body>
+
+<div id="rotate" role="alert">
+  <div class="rotateBox">
+    <div class="rotateIcon">⟲</div>
+    <h2 id="rotateTitle">画面を横向きにしてください</h2>
+    <p id="rotateText">このゲームは横長画面で遊ぶ脱出ゲームです。</p>
+  </div>
+</div>
+
+<div id="gameWrap">
+  <div id="game">
+
+    <div id="titleScreen" class="overlay active">
+      <div class="titleBox">
+        <p class="mythos">CTHULHU MYTHOS / クトゥルフ神話</p>
+        <h1 id="gameTitle">星眠る街の脱出</h1>
+        <p id="gameSubtitle" class="sub">クトゥルフ神話ファンタジー脱出ゲーム</p>
+
+        <div class="titleButtons">
+          <button id="btnStart">新しいゲーム</button>
+          <button id="btnContinue" disabled>続きから</button>
+          <button id="btnHelpTitle">遊び方</button>
+        </div>
+
+        <div class="titleSettings">
+          <button id="btnSoundTitle">🔊 ON</button>
+          <button id="btnLangTitle">EN</button>
+        </div>
+
+        <p id="autoSavedNote" class="note">進行データはこの端末に自動保存されます。</p>
+      </div>
+    </div>
+
+    <div id="gameScreen" class="view">
+      <div id="topbar">
+        <button id="btnSound">🔊 ON</button>
+        <button id="btnLang">EN</button>
+        <button id="btnHint">ヒント</button>
+        <button id="btnMenu">タイトル</button>
+      </div>
+
+      <div id="sceneWrap">
+        <svg id="scene" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid meet" aria-label="room scene">
+          <defs>
+            <linearGradient id="wallGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#12212d" />
+              <stop offset="1" stop-color="#0a141e" />
+            </linearGradient>
+            <linearGradient id="floorGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#2a231b" />
+              <stop offset="1" stop-color="#15110c" />
+            </linearGradient>
+            <radialGradient id="moonGlow" cx="50%" cy="50%" r="50%">
+              <stop offset="0" stop-color="#e7f0d9" stop-opacity=".65" />
+              <stop offset="1" stop-color="#e7f0d9" stop-opacity="0" />
+            </radialGradient>
+          </defs>
+
+          <rect width="1600" height="900" fill="#05080f" />
+          <rect x="0" y="0" width="1600" height="560" fill="url(#wallGrad)" />
+          <rect x="0" y="560" width="1600" height="340" fill="url(#floorGrad)" />
+          <polygon points="0,560 1600,560 1400,900 200,900" fill="#171410" opacity="0.55" />
+          <line x1="0" y1="560" x2="1600" y2="560" stroke="#3d4a52" stroke-width="3" />
+
+          <!-- Window -->
+          <g id="hot-window" class="hotspot" data-id="window" role="button" tabindex="0" aria-label="">
+            <rect x="420" y="100" width="360" height="270" fill="#1b1a13" stroke="#39321f" stroke-width="12" />
+            <rect x="445" y="125" width="310" height="220" fill="#07141f" />
+            <circle cx="680" cy="190" r="45" fill="url(#moonGlow)" />
+            <circle cx="680" cy="190" r="22" fill="#d7e6d8" opacity=".45" />
+            <rect x="445" y="260" width="310" height="85" fill="#0b2330" opacity=".5" />
+            <line x1="600" y1="125" x2="600" y2="345" stroke="#1b1a13" stroke-width="10" />
+            <line x1="445" y1="235" x2="755" y2="235" stroke="#1b1a13" stroke-width="10" />
+            <g id="tentacle" class="hidden">
+              <path d="M460 340 Q540 300 620 335 T750 320" stroke="#4d7d5a" stroke-width="18" fill="none" opacity=".5" />
+            </g>
+          </g>
+
+          <!-- Star chart -->
+          <g id="hot-chart" class="hotspot" data-id="chart" role="button" tabindex="0" aria-label="">
+            <rect x="820" y="100" width="300" height="190" fill="#0b1721" stroke="#315a6b" stroke-width="6" />
+            <polyline points="870,250 920,180 980,210 1040,150 1080,220" stroke="#24586a" fill="none" stroke-width="3" />
+            <circle cx="870" cy="250" r="8" fill="#79a5c2" />
+            <circle cx="920" cy="180" r="10" fill="#c76a5e" />
+            <circle cx="980" cy="210" r="7" fill="#68a8c8" />
+            <circle cx="1040" cy="150" r="9" fill="#c2d6e0" />
+            <circle cx="1080" cy="220" r="6" fill="#8bb6cc" />
+          </g>
+
+          <!-- Bookshelf -->
+          <g id="hot-shelf" class="hotspot" data-id="shelf" role="button" tabindex="0" aria-label="">
+            <rect x="60" y="140" width="250" height="420" fill="#3d2718" stroke="#6a482b" stroke-width="4" />
+            <rect x="70" y="210" width="230" height="14" fill="#24170d" />
+            <rect x="70" y="330" width="230" height="14" fill="#24170d" />
+            <rect x="70" y="450" width="230" height="14" fill="#24170d" />
+
+            <rect x="80" y="145" width="22" height="60" fill="#5d3434" />
+            <rect x="105" y="150" width="18" height="55" fill="#274b45" />
+            <rect x="126" y="142" width="26" height="63" fill="#6b5334" />
+            <rect x="155" y="153" width="18" height="52" fill="#3c4a6b" />
+            <rect x="176" y="148" width="24" height="57" fill="#6a2522" />
+            <rect x="203" y="144" width="18" height="61" fill="#2e5640" />
+            <rect x="224" y="151" width="25" height="54" fill="#57576b" />
+            <rect x="252" y="146" width="20" height="59" fill="#6b4525" />
+
+            <rect x="82" y="225" width="20" height="100" fill="#463b5b" />
+            <rect x="105" y="230" width="25" height="95" fill="#284c3a" />
+            <rect x="133" y="222" width="17" height="103" fill="#5c3631" />
+            <rect x="153" y="238" width="28" height="87" fill="#31556b" />
+            <rect x="185" y="228" width="19" height="97" fill="#66512c" />
+            <rect x="207" y="235" width="24" height="90" fill="#43294a" />
+            <rect x="234" y="224" width="21" height="101" fill="#5f3d29" />
+
+            <g id="item-codex">
+              <rect x="170" y="360" width="65" height="80" fill="#7b1d1f" transform="rotate(-3 202 400)" />
+              <rect x="170" y="360" width="8" height="80" fill="#4a1214" transform="rotate(-3 202 400)" />
+              <rect x="185" y="375" width="35" height="5" fill="#d6b879" opacity=".65" />
+              <rect x="185" y="385" width="28" height="4" fill="#d6b879" opacity=".45" />
+            </g>
+          </g>
+
+          <!-- Rug -->
+          <g id="hot-rug" class="hotspot" data-id="rug" role="button" tabindex="0" aria-label="">
+            <ellipse cx="760" cy="790" rx="260" ry="70" fill="#662228" stroke="#431418" stroke-width="6" />
+            <ellipse cx="760" cy="790" rx="180" ry="45" fill="#7a333a" opacity=".35" />
+            <ellipse cx="760" cy="790" rx="90" ry="20" fill="#8c3f47" opacity=".25" />
+          </g>
+
+          <!-- Desk -->
+          <g id="hot-desk" class="hotspot" data-id="desk" role="button" tabindex="0" aria-label="">
+            <rect x="380" y="600" width="360" height="145" fill="#4b3522" stroke="#75522f" stroke-width="4" />
+            <rect x="400" y="745" width="30" height="100" fill="#2f2316" />
+            <rect x="690" y="745" width="30" height="100" fill="#2f2316" />
+            <rect id="desk-drawer" x="510" y="630" width="120" height="65" fill="#312214" stroke="#714f2d" stroke-width="3" />
+            <circle id="desk-dial" cx="570" cy="662" r="24" fill="#d7c9a5" opacity=".85" />
+            <circle cx="570" cy="662" r="18" fill="#0f0c09" />
+            <line x1="570" y1="644" x2="570" y2="680" stroke="#d7c9a5" stroke-width="2" opacity=".65" />
+            <line x1="552" y1="662" x2="588" y2="662" stroke="#d7c9a5" stroke-width="2" opacity=".65" />
+          </g>
+
+          <!-- Cabinet -->
+          <g id="hot-cabinet" class="hotspot" data-id="cabinet" role="button" tabindex="0" aria-label="">
+            <rect x="850" y="420" width="180" height="330" fill="#3e2c1b" stroke="#715233" stroke-width="4" />
+            <line x1="940" y1="430" x2="940" y2="740" stroke="#2a1d12" stroke-width="3" />
+            <circle id="cabinet-lock" cx="920" cy="580" r="20" fill="#c8b78f" />
+            <circle cx="920" cy="580" r="9" fill="#110d08" />
+          </g>
+
+          <!-- Door -->
+          <g id="hot-door" class="hotspot" data-id="door" role="button" tabindex="0" aria-label="">
+            <rect x="1140" y="210" width="260" height="550" fill="#101821" stroke="#44607a" stroke-width="10" />
+            <rect x="1170" y="240" width="200" height="490" fill="#23332b" />
+            <rect x="1190" y="270" width="70" height="120" fill="#1a2822" stroke="#101813" stroke-width="3" />
+            <rect x="1280" y="270" width="70" height="120" fill="#1a2822" stroke="#101813" stroke-width="3" />
+            <rect x="1190" y="430" width="70" height="120" fill="#1a2822" stroke="#101813" stroke-width="3" />
+            <rect x="1280" y="430" width="70" height="120" fill="#1a2822" stroke="#101813" stroke-width="3" />
+            <circle id="door-handle" cx="1178" cy="480" r="16" fill="#c7ba95" />
+            <path id="door-socket"
+                  d="M1250 440 L1262 472 L1296 472 L1269 492 L1281 524 L1250 504 L1219 524 L1231 492 L1204 472 L1238 472 Z"
+                  fill="#071015"
+                  stroke="#6fa2a8"
+                  stroke-width="3" />
+          </g>
+        </svg>
+      </div>
+
+      <div id="bottomUI">
+        <div id="messageBox" role="status" aria-live="polite"></div>
+        <div id="inventory"></div>
+      </div>
+    </div>
+
+    <div id="endingScreen" class="overlay">
+      <div class="titleBox">
+        <h1 id="endTitle">脱出</h1>
+        <div id="endBody" class="body"></div>
+        <div class="titleButtons">
+          <button id="btnAgain">新しいゲーム</button>
+          <button id="btnEndTitle">タイトル</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="lockModal" class="modal" aria-hidden="true">
+      <div class="panel">
+        <h3 id="lockTitle">三桁ダイヤル</h3>
+        <div class="dials">
+          <div class="dial">
+            <button data-digit="0" data-delta="-1">−</button>
+            <div class="digit" id="digit0">0</div>
+            <button data-digit="0" data-delta="1">＋</button>
+          </div>
+          <div class="dial">
+            <button data-digit="1" data-delta="-1">−</button>
+            <div class="digit" id="digit1">0</div>
+            <button data-digit="1" data-delta="1">＋</button>
+          </div>
+          <div class="dial">
+            <button data-digit="2" data-delta="-1">−</button>
+            <div class="digit" id="digit2">0</div>
+            <button data-digit="2" data-delta="1">＋</button>
+          </div>
+        </div>
+        <div class="lock-actions">
+          <button id="btnCheck">確認</button>
+          <button id="btnCloseLock">閉じる</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="textModal" class="modal" aria-hidden="true">
+      <div class="panel">
+        <h3 id="textModalTitle"></h3>
+        <div id="textModalBody" class="body"></div>
+        <div class="row">
+          <button id="textModalClose">閉じる</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+"use strict";
+
+const SAVE_KEY = "cthulhu_escape_save_v1";
+const SETTINGS_KEY = "cthulhu_escape_settings_v1";
+const CODE = [7, 8, 7];
+
+const I18N = {
+  ja: {
+    title: "星眠る街の脱出",
+    subtitle: "クトゥルフ神話ファンタジー脱出ゲーム",
+    autoSavedNote: "進行データはこの端末に自動保存されます。",
+
+    rotateTitle: "画面を横向きにしてください",
+    rotateText: "このゲームは横長画面で遊ぶ脱出ゲームです。端末を回転させてください。",
+
+    startNew: "新しいゲーム",
+    continue: "続きから",
+    how: "遊び方",
+    howTitle: "遊び方",
+    howBody: `・横画面でプレイします。
+・タップ/クリックで部屋を調べます。
+・必要なアイテムは、対象に使うと自動的に使われます。
+・進行データはこの端末に自動保存されます。
+・サウンドは上部のボタンで ON/OFF できます。
+・ヒントで詰まりを解消できます。`,
+
+    langToEn: "EN",
+    langToJa: "日本語",
+    soundOn: "🔊 ON",
+    soundOff: "🔇 OFF",
+    hint: "ヒント",
+    menu: "タイトル",
+
+    lockTitle: "三桁ダイヤル",
+    check: "確認",
+    close: "閉じる",
+
+    inventoryEmpty: "持ち物",
+
+    itemSilverKey: "銀の鍵",
+    inspectSilverKey: "小さな銀の鍵。箱のようなものを開けるための鍵に見える。",
+    itemCodex: "R'lyeh Codex",
+    codexTitle: "R'lyeh Codex（星都の典拠）",
+    codexBody: `When the stars are right, call the Sleeper:
+
+Ph'nglui Mglw'nafh Cthulhu
+
+三つの単語の文字数をダイヤルに回す。
+アポストロフィーは文字として数えない。`,
+
+    itemBrassKey: "真鍮の鍵",
+    inspectBrassKey: "歯の形が星のようになっている真鍮の鍵。",
+    itemAmulet: "星の護符",
+    inspectAmulet: "ドアの星形ソケットと完全に同じ形をした護符。",
+
+    msgIntro: "古い航海者の部屋だ。\nドアは星形のソケットで封じられている。\n脱出するには、眠れる街を呼ぶ鍵を辿るしかない。",
+    msgContinue: "続きを始める。",
+    msgGetSilverKey: "ラグをずらすと、床板に埋まった銀の鍵が出てきた。",
+    msgRugEmpty: "ラグの下にはもう何も残っていない。",
+    msgShelfLocked: "本棚の裏に小さな鍵付きの箱がある。\n銀の鍵が必要だ。",
+    msgGetCodex: "箱を開けると、『R'lyeh Codex（星都の典拠）』を手に入れた。",
+    msgShelfEmpty: "箱は空だ。典拠はすでに手の中にある。",
+    msgOpenDesk: "机の引き出しには三桁のダイヤル錠がついている。",
+    msgDeskEmpty: "引き出しはもう空だ。",
+    msgUnlockDesk: "カチリ、と音がしてダイヤルが開いた。\n中には真鍮の鍵。",
+    msgCodeWrong: "違う。ダイヤルは沈黙したまま。",
+    msgCabinetLocked: "箪笥には星形の鍵穴がある。\n真鍮の鍵が必要だ。",
+    msgGetAmulet: "箪笥が開いた。\n中に星型の護符が眠っていた。",
+    msgCabinetEmpty: "箪笥は空だ。",
+    msgDoorLocked: "ドアは動かない。\n中央の星形ソケットが、何かを待っている。",
+    msgWindow: "窓の外は嵐の海。\n巨大な輪郭が波の下で息を止めている。",
+    msgWindowAmulet: "星の護符の熱が窓の闇へ吸い寄せられる。\n急げ。",
+    msgChart: "壁の星図。\n中央に、鍵のような幾何学形が描かれている。",
+
+    endTitle: "脱出",
+    endBody: `星の護符がソケットに嵌まり、
+扉は非ユークリッド幾何学の闇へ開いた。
+
+あなたは部屋から逃げ出した。
+だが、それは眠れる街の目覚めを
+呼び戻す最初の一歩にすぎなかった。
+
+...Iä! Iä! R'lyeh!`,
+
+    confirmNew: "現在の進行データを上書きして、新しいゲームを始めますか？",
+
+    hint1: "ヒント1: 部屋を隅々まで調べろ。銀の鍵はラグの下にあり、それは本棚の箱を開ける。",
+    hint2: "ヒント2: 典拠を読め。呪文を構成する三つの単語の文字数がダイヤル番号になる。",
+    hint3: "ヒント3: 鍵のコードは 7 - 8 - 7 だ。",
+
+    objWindow: "窓",
+    objChart: "星図",
+    objShelf: "本棚",
+    objRug: "ラグ",
+    objDesk: "机",
+    objCabinet: "箪笥",
+    objDoor: "ドア"
+  },
+
+  en: {
+    title: "Whispers of R'lyeh",
+    subtitle: "A Cthulhu Mythos Escape Game",
+    autoSavedNote: "Progress is saved locally on this device.",
+
+    rotateTitle: "Please rotate to landscape",
+    rotateText: "This escape game is designed for landscape screens.",
+
+    startNew: "New Game",
+    continue: "Continue",
+    how: "How to Play",
+    howTitle: "How to Play",
+    howBody: `• Play in landscape mode.
+• Tap/click objects to investigate.
+• Required items are used automatically when you interact.
+• Progress is auto-saved locally.
+• Sound can be toggled from the top buttons.
+• Use Hint if you are stuck.`,
+
+    langToEn: "EN",
+    langToJa: "日本語",
+    soundOn: "🔊 ON",
+    soundOff: "🔇 OFF",
+    hint: "Hint",
+    menu: "Title",
+
+    lockTitle: "Three-Digit Dial",
+    check: "Confirm",
+    close: "Close",
+
+    inventoryEmpty: "Inventory",
+
+    itemSilverKey: "Silver Key",
+    inspectSilverKey: "A small silver key. It seems meant for a tiny lock.",
+    itemCodex: "R'lyeh Codex",
+    codexTitle: "R'lyeh Codex",
+    codexBody: `When the stars are right, call the Sleeper:
+
+Ph'nglui Mglw'nafh Cthulhu
+
+The dial's three numbers are the letter-counts of these words.
+Apostrophes are not letters.`,
+
+    itemBrassKey: "Brass Key",
+    inspectBrassKey: "A brass key whose teeth are shaped like a star.",
+    itemAmulet: "Star Amulet",
+    inspectAmulet: "A star-shaped amulet. It matches the socket in the door exactly.",
+
+    msgIntro: "This is an old ship-keeper's room.\nThe door is sealed with a star-shaped socket.\nTo escape, you must follow the key that calls the sleeping city.",
+    msgContinue: "You resume your investigation.",
+    msgGetSilverKey: "You shift the rug. A silver key is wedged beneath the floorboard.",
+    msgRugEmpty: "Nothing remains under the rug.",
+    msgShelfLocked: "A small locked box is hidden behind the books.\nIt needs a silver key.",
+    msgGetCodex: "The box opens. Inside is the R'lyeh Codex.",
+    msgShelfEmpty: "The box is empty. The Codex is already in your hands.",
+    msgOpenDesk: "The desk drawer is fastened with a three-digit dial.",
+    msgDeskEmpty: "The drawer is already empty.",
+    msgUnlockDesk: "A click. The dial opens.\nInside is a brass key.",
+    msgCodeWrong: "Wrong. The dial stays silent.",
+    msgCabinetLocked: "A star-shaped keyhole stares from the cabinet.\nIt needs a brass key.",
+    msgGetAmulet: "The cabinet opens.\nA star-shaped amulet lies within.",
+    msgCabinetEmpty: "The cabinet is empty.",
+    msgDoorLocked: "The door will not move.\nA star-shaped socket waits for something.",
+    msgWindow: "Beyond the window is a storm-lashed sea.\nSomething vast holds its breath below the waves.",
+    msgWindowAmulet: "The amulet's warmth pulls toward the dark water.\nHurry.",
+    msgChart: "A wall chart of stars.\nAt its center is drawn a geometric shape like a key.",
+
+    endTitle: "You Escaped",
+    endBody: `The star amulet seats itself in the socket,
+and the door opens onto impossible geometry.
+
+You escaped the room.
+But that was only the first step
+in returning the sleeping city to wake.
+
+...Iä! Iä! R'lyeh!`,
+
+    confirmNew: "Overwrite the current save and start a new game?",
+
+    hint1: "Hint 1: Search the whole room. The silver key is under the rug, and it opens the bookshelf box.",
+    hint2: "Hint 2: Read the Codex. The letter-counts of the chant's three words are the dial numbers.",
+    hint3: "Hint 3: The code is 7 - 8 - 7.",
+
+    objWindow: "Window",
+    objChart: "Star Chart",
+    objShelf: "Bookshelf",
+    objRug: "Rug",
+    objDesk: "Desk",
+    objCabinet: "Cabinet",
+    objDoor: "Door"
+  }
+};
+
+const ITEM_META = {
+  silver: { name: "itemSilverKey", inspect: "inspectSilverKey" },
+  codex: { name: "itemCodex", inspect: "inspectCodex" },
+  brass: { name: "itemBrassKey", inspect: "inspectBrassKey" },
+  amulet: { name: "itemAmulet", inspect: "inspectAmulet" }
+};
+
+const OBJ_MAP = {
+  window: "objWindow",
+  chart: "objChart",
+  shelf: "objShelf",
+  rug: "objRug",
+  desk: "objDesk",
+  cabinet: "objCabinet",
+  door: "objDoor"
+};
+
+let settings = { lang: "ja", sound: true };
+let game = newGame();
+let lastMessage = { key: null };
+let lastTextModal = { titleKey: null, bodyKey: null };
+let currentDigits = [0, 0, 0];
+let audioCtx = null;
+
+function newGame() {
+  return {
+    hasSilverKey: false,
+    hasCodex: false,
+    deskUnlocked: false,
+    hasBrassKey: false,
+    cabinetOpened: false,
+    hasAmulet: false,
+    escaped: false,
+    hintIndex: 0
+  };
+}
+
+function lsGet(key) {
+  try { return localStorage.getItem(key); } catch (e) { return null; }
+}
+
+function lsSet(key, value) {
+  try { localStorage.setItem(key, value); } catch (e) {}
+}
+
+function lsDel(key) {
+  try { localStorage.removeItem(key); } catch (e) {}
+}
+
+function loadSettings() {
+  const raw = lsGet(SETTINGS_KEY);
+  if (raw) {
+    try {
+      const d = JSON.parse(raw);
+      if (d && (d.lang === "ja" || d.lang === "en")) settings.lang = d.lang;
+      if (typeof d.sound === "boolean") settings.sound = d.sound;
+    } catch (e) {}
+  } else {
+    const l = (navigator.language || "en").toLowerCase();
+    settings.lang = l.startsWith("ja") ? "ja" : "en";
+  }
+}
+
+function saveSettings() {
+  lsSet(SETTINGS_KEY, JSON.stringify(settings));
+}
+
+function saveProgress() {
+  if (game.escaped) {
+    lsDel(SAVE_KEY);
+    return;
+  }
+  lsSet(SAVE_KEY, JSON.stringify(game));
+}
+
+function clearProgress() {
+  lsDel(SAVE_KEY);
+}
+
+function getSaveData() {
+  const raw = lsGet(SAVE_KEY);
+  if (!raw) return null;
+  try {
+    const d = JSON.parse(raw);
+    if (!d || d.escaped) return null;
+    return d;
+  } catch (e) {
+    return null;
+  }
+}
+
+function loadProgress() {
+  const d = getSaveData();
+  if (!d) return false;
+
+  const clean = newGame();
+  for (const k in clean) {
+    if (!Object.prototype.hasOwnProperty.call(clean, k)) continue;
+    if (!Object.prototype.hasOwnProperty.call(d, k)) continue;
+    const v = d[k];
+    if (k === "hintIndex") {
+      const n = Number(v);
+      clean[k] = Number.isFinite(n) ? Math.max(0, Math.min(3, Math.floor(n))) : 0;
+    } else {
+      clean[k] = Boolean(v);
+    }
+  }
+  game = clean;
+  saveProgress();
+  return true;
+}
+
+function t(key) {
+  const d = I18N[settings.lang] || I18N.en;
+  return d[key] || I18N.en[key] || key;
+}
+
+function setKey(id, key) {
+  const el = document.getElementById(id);
+  if (el) el.textContent = t(key);
+}
+
+function ensureAudio() {
+  if (!settings.sound) return null;
+  try {
+    if (!audioCtx) {
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if (!AC) return null;
+      audioCtx = new AC();
+    }
+    if (audioCtx.state === "suspended") audioCtx.resume();
+    return audioCtx;
+  } catch (e) {
+    return null;
+  }
+}
+
+function beep(freq, dur, type, vol, when) {
+  const ctx = ensureAudio();
+  if (!ctx) return;
+
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+  const t0 = ctx.currentTime + (when || 0);
+
+  osc.type = type || "sine";
+  osc.frequency.setValueAtTime(freq, t0);
+
+  gain.gain.setValueAtTime(0, t0);
+  gain.gain.linearRampToValueAtTime(vol || 0.05, t0 + 0.012);
+  gain.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+
+  osc.connect(gain);
+  gain.connect(ctx.destination);
+  osc.start(t0);
+  osc.stop(t0 + dur + 0.05);
+}
+
+function playSound(kind) {
+  if (!settings.sound) return;
+
+  switch (kind) {
+    case "click":
+      beep(340, 0.06, "triangle", 0.035);
+      break;
+    case "error":
+      beep(120, 0.18, "sawtooth", 0.055);
+      beep(88, 0.30, "sine", 0.045, 0.08);
+      break;
+    case "take":
+      beep(520, 0.09, "triangle", 0.045);
+      beep(780, 0.10, "sine", 0.045, 0.07);
+      break;
+    case "success":
+      beep(620, 0.12, "sine", 0.045);
+      beep(880, 0.16, "triangle", 0.05, 0.11);
+      break;
+    case "end":
+      beep(110, 2.0, "sine", 0.065);
+      beep(165, 1.8, "triangle", 0.035, 0.18);
+      beep(82, 2.6, "sawtooth", 0.025, 0.35);
+      break;
+  }
+}
+
+function say(key) {
+  lastMessage = { key };
+  renderMessage();
+}
+
+function renderMessage() {
+  const box = document.getElementById("messageBox");
+  if (!box) return;
+  box.textContent = lastMessage.key ? t(lastMessage.key) : "";
+}
+
+function applyI18n() {
+  document.documentElement.lang = settings.lang;
+  document.title = t("title") + " | Cthulhu Escape";
+
+  setKey("rotateTitle", "rotateTitle");
+  setKey("rotateText", "rotateText");
+
+  setKey("gameTitle", "title");
+  setKey("gameSubtitle", "subtitle");
+  setKey("autoSavedNote", "autoSavedNote");
+  setKey("btnStart", "startNew");
+  setKey("btnContinue", "continue");
+  setKey("btnHelpTitle", "how");
+
+  const soundKey = settings.sound ? "soundOn" : "soundOff";
+  setKey("btnSoundTitle", soundKey);
+  setKey("btnSound", soundKey);
+
+  const langKey = settings.lang === "ja" ? "langToEn" : "langToJa";
+  setKey("btnLangTitle", langKey);
+  setKey("btnLang", langKey);
+
+  setKey("btnHint", "hint");
+  setKey("btnMenu", "menu");
+
+  setKey("lockTitle", "lockTitle");
+  setKey("btnCheck", "check");
+  setKey("btnCloseLock", "close");
+  setKey("textModalClose", "close");
+
+  setKey("endTitle", "endTitle");
+  setKey("endBody", "endBody");
+  setKey("btnAgain", "startNew");
+  setKey("btnEndTitle", "menu");
+
+  renderMessage();
+  updateInventory();
+  updateHotspotAria();
+
+  const tm = document.getElementById("textModal");
+  if (tm && tm.classList.contains("show") && lastTextModal.titleKey) {
+    setKey("textModalTitle", lastTextModal.titleKey);
+    setKey("textModalBody", lastTextModal.bodyKey);
+  }
+
+  const lm = document.getElementById("lockModal");
+  if (lm && lm.classList.contains("show")) renderLock();
+}
+
+function showScreen(which) {
+  const map = {
+    title: "titleScreen",
+    game: "gameScreen",
+    ending: "endingScreen"
+  };
+  ["titleScreen", "gameScreen", "endingScreen"].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.classList.toggle("active", id === map[which]);
+  });
+}
+
+function updateTitleButtons() {
+  const has = !!getSaveData();
+  const b = document.getElementById("btnContinue");
+  if (b) b.disabled = !has;
+}
+
+function startNew(force) {
+  if (!force && getSaveData()) {
+    if (!window.confirm(t("confirmNew"))) return;
+  }
+
+  game = newGame();
+  clearProgress();
+  saveProgress();
+
+  showScreen("game");
+  say("msgIntro");
+  updateAll();
+  playSound("success");
+}
+
+function continueGame() {
+  if (!loadProgress()) {
+    updateTitleButtons();
+    return;
+  }
+  showScreen("game");
+  say("msgContinue");
+  updateAll();
+  playSound("take");
+}
+
+function goToTitle() {
+  saveProgress();
+  showScreen("title");
+  updateTitleButtons();
+  playSound("click");
+}
+
+function updateAll() {
+  updateInventory();
+  updateSceneVisuals();
+  updateHotspotAria();
+  updateTitleButtons();
+}
+
+function updateInventory() {
+  const inv = document.getElementById("inventory");
+  if (!inv) return;
+  inv.innerHTML = "";
+
+  const items = [];
+  if (game.hasSilverKey) items.push("silver");
+  if (game.hasCodex) items.push("codex");
+  if (game.hasBrassKey) items.push("brass");
+  if (game.hasAmulet) items.push("amulet");
+
+  if (!items.length) {
+    const span = document.createElement("div");
+    span.className = "invEmpty";
+    span.textContent = t("inventoryEmpty");
+    inv.appendChild(span);
+    return;
+  }
+
+  items.forEach(id => {
+    const meta = ITEM_META[id];
+    const btn = document.createElement("button");
+    btn.className = "inv-item";
+    btn.textContent = t(meta.name);
+    btn.setAttribute("aria-label", t(meta.name));
+    btn.addEventListener("click", () => {
+      if (id === "codex") {
+        openTextModal("codexTitle", "codexBody");
+      } else {
+        playSound("click");
+        say(meta.inspect);
+      }
+    });
+    inv.appendChild(btn);
+  });
+}
+
+function updateSceneVisuals() {
+  const codex = document.getElementById("item-codex");
+  if (codex) codex.classList.toggle("hidden", game.hasCodex);
+
+  const cabLock = document.getElementById("cabinet-lock");
+  if (cabLock) cabLock.classList.toggle("used", game.cabinetOpened);
+
+  const deskDial = document.getElementById("desk-dial");
+  if (deskDial) deskDial.classList.toggle("unlocked", game.deskUnlocked);
+
+  const socket = document.getElementById("door-socket");
+  if (socket) socket.classList.toggle("filled", game.hasAmulet);
+
+  const rug = document.getElementById("hot-rug");
+  if (rug) rug.classList.toggle("moved", game.hasSilverKey);
+}
+
+function updateHotspotAria() {
+  document.querySelectorAll(".hotspot").forEach(g => {
+    const key = OBJ_MAP[g.dataset.id];
+    if (key) g.setAttribute("aria-label", t(key));
+  });
+}
+
+function onSceneClick(e) {
+  const g = e.target.closest(".hotspot");
+  if (!g) return;
+  const id = g.dataset.id;
+  if (!id) return;
+  playSound("click");
+  handleAction(id);
+}
+
+function onSceneKey(e) {
+  if (e.key !== "Enter" && e.key !== " ") return;
+  const g = e.target.closest(".hotspot");
+  if (!g) return;
+  const id = g.dataset.id;
+  if (!id) return;
+  e.preventDefault();
+  playSound("click");
+  handleAction(id);
+}
+
+function handleAction(id) {
+  let changed = false;
+
+  switch (id) {
+    case "window":
+      if (game.hasAmulet) say("msgWindowAmulet");
+      else say("msgWindow");
+      break;
+
+    case "chart":
+      say("msgChart");
+      break;
+
+    case "rug":
+      if (!game.hasSilverKey) {
+        game.hasSilverKey = true;
+        changed = true;
+        say("msgGetSilverKey");
+        playSound("take");
+      } else {
+        say("msgRugEmpty");
+      }
+      break;
+
+    case "shelf":
+      if (!game.hasCodex) {
+        if (game.hasSilverKey) {
+          game.hasCodex = true;
+          changed = true;
+          say("msgGetCodex");
+          playSound("take");
+        } else {
+          say("msgShelfLocked");
+          playSound("error");
+        }
+      } else {
+        say("msgShelfEmpty");
+      }
+      break;
+
+    case "desk":
+      if (game.deskUnlocked) {
+        say("msgDeskEmpty");
+      } else {
+        currentDigits = [0, 0, 0];
+        renderLock();
+        openLockModal();
+        say("msgOpenDesk");
+      }
+      break;
+
+    case "cabinet":
+      if (game.cabinetOpened) {
+        say("msgCabinetEmpty");
+      } else if (game.hasBrassKey) {
+        game.cabinetOpened = true;
+        game.hasAmulet = true;
+        changed = true;
+        say("msgGetAmulet");
+        playSound("success");
+      } else {
+        say("msgCabinetLocked");
+        playSound("error");
+      }
+      break;
+
+    case "door":
+      if (game.hasAmulet) {
+        finish();
+        return;
+      } else {
+        say("msgDoorLocked");
+        playSound("error");
+      }
+      break;
+
+    default:
+      break;
+  }
+
+  if (changed) {
+    saveProgress();
+    updateAll();
+  }
+}
+
+function openLockModal() {
+  const m = document.getElementById("lockModal");
+  if (m) m.classList.add("show");
+}
+
+function closeLockModal() {
+  const m = document.getElementById("lockModal");
+  if (m) m.classList.remove("show");
+}
+
+function renderLock() {
+  for (let i = 0; i < 3; i++) {
+    const el = document.getElementById("digit" + i);
+    if (el) el.textContent = String(currentDigits[i]);
+  }
+}
+
+function onLockClick(e) {
+  if (e.target.id === "lockModal") {
+    closeLockModal();
+    return;
+  }
+
+  const btn = e.target.closest("button");
+  if (!btn) return;
+
+  if (btn.id === "btnCheck") {
+    checkLock();
+  } else if (btn.id === "btnCloseLock") {
+    closeLockModal();
+  } else if (btn.hasAttribute("data-delta")) {
+    const idx = Number(btn.dataset.digit);
+    const delta = Number(btn.dataset.delta);
+    if (Number.isFinite(idx)) {
+      currentDigits[idx] = (currentDigits[idx] + delta + 10) % 10;
+      renderLock();
+      playSound("click");
+    }
+  }
+}
+
+function checkLock() {
+  const ok = currentDigits.every((v, i) => v === CODE[i]);
+  if (!ok) {
+    playSound("error");
+    say("msgCodeWrong");
+    return;
+  }
+
+  game.deskUnlocked = true;
+  game.hasBrassKey = true;
+  closeLockModal();
+  say("msgUnlockDesk");
+  playSound("success");
+  saveProgress();
+  updateAll();
+}
+
+function openTextModal(titleKey, bodyKey) {
+  lastTextModal = { titleKey, bodyKey };
+  setKey("textModalTitle", titleKey);
+  setKey("textModalBody", bodyKey);
+  const m = document.getElementById("textModal");
+  if (m) m.classList.add("show");
+  playSound("click");
+}
+
+function closeTextModal() {
+  const m = document.getElementById("textModal");
+  if (m) m.classList.remove("show");
+  lastTextModal = { titleKey: null, bodyKey: null };
+}
+
+function finish() {
+  if (game.escaped) return;
+  game.escaped = true;
+  clearProgress();
+  showScreen("ending");
+  setKey("endTitle", "endTitle");
+  setKey("endBody", "endBody");
+  playSound("end");
+}
+
+function showHint() {
+  if (game.hintIndex < 3) game.hintIndex++;
+  const n = Math.max(1, Math.min(3, game.hintIndex));
+  say("hint" + n);
+  playSound("click");
+  saveProgress();
+}
+
+function toggleLang() {
+  settings.lang = settings.lang === "ja" ? "en" : "ja";
+  saveSettings();
+  applyI18n();
+  playSound("click");
+}
+
+function toggleSound() {
+  settings.sound = !settings.sound;
+  saveSettings();
+  applyI18n();
+  if (settings.sound) playSound("click");
+}
+
+function bindEvents() {
+  document.getElementById("btnStart").addEventListener("click", () => startNew(false));
+  document.getElementById("btnContinue").addEventListener("click", continueGame);
+  document.getElementById("btnHelpTitle").addEventListener("click", () => openTextModal("howTitle", "howBody"));
+  document.getElementById("btnSoundTitle").addEventListener("click", toggleSound);
+  document.getElementById("btnLangTitle").addEventListener("click", toggleLang);
+
+  document.getElementById("btnSound").addEventListener("click", toggleSound);
+  document.getElementById("btnLang").addEventListener("click", toggleLang);
+  document.getElementById("btnHint").addEventListener("click", showHint);
+  document.getElementById("btnMenu").addEventListener("click", goToTitle);
+
+  document.getElementById("btnAgain").addEventListener("click", () => startNew(true));
+  document.getElementById("btnEndTitle").addEventListener("click", goToTitle);
+
+  const scene = document.getElementById("scene");
+  scene.addEventListener("click", onSceneClick);
+  scene.addEventListener("keydown", onSceneKey);
+
+  document.getElementById("lockModal").addEventListener("click", onLockClick);
+  document.getElementById("textModal").addEventListener("click", e => {
+    if (e.target.id === "textModal") closeTextModal();
+  });
+  document.getElementById("textModalClose").addEventListener("click", closeTextModal);
+
+  document.getElementById("game").addEventListener("contextmenu", e => e.preventDefault());
+}
+
+function init() {
+  loadSettings();
+  bindEvents();
+  applyI18n();
+  showScreen("title");
+  updateTitleButtons();
+}
+
+init();
+</script>
+</body>
+</html>
